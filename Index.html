@@ -1,0 +1,1059 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة تحكم ريدان - المسؤول</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #8B0000;
+            --secondary: #F0E68C;
+            --accent: #CD853F;
+            --success: #4CAF50;
+            --warning: #FFC107;
+            --danger: #F44336;
+            --light: #f8f9fa;
+            --dark: #343a40;
+            --gray: #6c757d;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+        .admin-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* الشريط الجانبي */
+        .sidebar {
+            width: 250px;
+            background: linear-gradient(135deg, var(--primary), var(--dark));
+            color: white;
+            transition: all 0.3s;
+            position: fixed;
+            height: 100vh;
+            z-index: 1000;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sidebar-header img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+        }
+
+        .sidebar-menu {
+            padding: 20px 0;
+        }
+
+        .menu-item {
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .menu-item:hover, .menu-item.active {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .menu-item i {
+            width: 20px;
+            text-align: center;
+        }
+
+        /* المحتوى الرئيسي */
+        .main-content {
+            flex: 1;
+            margin-right: 250px;
+            transition: all 0.3s;
+        }
+
+        .top-nav {
+            background-color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .search-box {
+            position: relative;
+            width: 300px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 8px 15px 8px 35px;
+            border-radius: 20px;
+            border: 1px solid #ddd;
+            outline: none;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .notification-bell {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: var(--danger);
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .user-img {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        /* محتوى الصفحة */
+        .page-content {
+            padding: 20px;
+        }
+
+        .stats-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            border-left: 4px solid var(--primary);
+        }
+
+        .stat-card h3 {
+            font-size: 14px;
+            color: var(--gray);
+            margin-bottom: 10px;
+        }
+
+        .stat-card .value {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-card .change {
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .change.up {
+            color: var(--success);
+        }
+
+        .change.down {
+            color: var(--danger);
+        }
+
+        /* جدول الطلبات */
+        .orders-section {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .filter-tabs {
+            display: flex;
+            gap: 10px;
+        }
+
+        .tab-btn {
+            padding: 6px 12px;
+            border-radius: 20px;
+            background-color: var(--light);
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .tab-btn.active {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .orders-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .orders-table th {
+            text-align: right;
+            padding: 12px 15px;
+            background-color: var(--light);
+            color: var(--dark);
+            font-weight: 500;
+        }
+
+        .orders-table td {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .order-row.new-order {
+            animation: highlight 2s;
+        }
+
+        @keyframes highlight {
+            0% { background-color: rgba(76, 175, 80, 0.3); }
+            100% { background-color: transparent; }
+        }
+
+        .order-id {
+            color: var(--primary);
+            font-weight: 500;
+        }
+
+        .order-type {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 12px;
+            background-color: var(--secondary);
+            color: var(--dark);
+        }
+
+        .order-status {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 12px;
+        }
+
+        .status-pending {
+            background-color: var(--warning);
+            color: #000;
+        }
+
+        .status-completed {
+            background-color: var(--success);
+            color: white;
+        }
+
+        .status-canceled {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        .action-btn {
+            padding: 5px 10px;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .btn-accept {
+            background-color: var(--success);
+            color: white;
+        }
+
+        .btn-reject {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        .btn-complete {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .order-details {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px dashed #eee;
+            display: none;
+        }
+
+        .order-details.show {
+            display: block;
+        }
+
+        .details-row {
+            display: flex;
+            margin-bottom: 8px;
+        }
+
+        .details-label {
+            font-weight: 500;
+            min-width: 100px;
+            color: var(--gray);
+        }
+
+        .items-list {
+            margin-top: 10px;
+        }
+
+        .item-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            border-bottom: 1px solid #f5f5f5;
+        }
+
+        /* إشعارات */
+        .notification-panel {
+            position: fixed;
+            top: 0;
+            right: -350px;
+            width: 350px;
+            height: 100vh;
+            background-color: white;
+            box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
+            z-index: 1001;
+            transition: all 0.3s;
+            overflow-y: auto;
+        }
+
+        .notification-panel.open {
+            right: 0;
+        }
+
+        .notification-header {
+            padding: 15px;
+            background-color: var(--primary);
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .close-notifications {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .notification-item {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+        }
+
+        .notification-item.unread {
+            background-color: #f9f9f9;
+        }
+
+        .notification-title {
+            font-weight: 500;
+            margin-bottom: 5px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .notification-time {
+            font-size: 12px;
+            color: var(--gray);
+        }
+
+        .notification-text {
+            font-size: 14px;
+        }
+
+        /* نغمة الإشعار */
+        .audio-control {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background-color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            z-index: 100;
+        }
+
+        /* تصميم متجاوب */
+        @media (max-width: 992px) {
+            .sidebar {
+                width: 80px;
+                overflow: hidden;
+            }
+            
+            .sidebar-header span, .menu-item span {
+                display: none;
+            }
+            
+            .menu-item {
+                justify-content: center;
+            }
+            
+            .main-content {
+                margin-right: 80px;
+            }
+            
+            .search-box {
+                width: 200px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                right: -100%;
+            }
+            
+            .sidebar.open {
+                right: 0;
+            }
+            
+            .main-content {
+                margin-right: 0;
+            }
+            
+            .top-nav {
+                flex-direction: column;
+                gap: 15px;
+                padding: 15px;
+            }
+            
+            .search-box {
+                width: 100%;
+            }
+            
+            .stats-cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .orders-table {
+                display: block;
+                overflow-x: auto;
+            }
+            
+            .notification-panel {
+                width: 100%;
+                right: -100%;
+            }
+        }
+
+        /* تأثيرات */
+        .pulse {
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(139, 0, 0, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(139, 0, 0, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(139, 0, 0, 0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <!-- الشريط الجانبي -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <img src="https://via.placeholder.com/40" alt="Logo">
+                <span>مطعم ريدان</span>
+            </div>
+            <div class="sidebar-menu">
+                <div class="menu-item active">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>لوحة التحكم</span>
+                </div>
+                <div class="menu-item">
+                    <i class="fas fa-utensils"></i>
+                    <span>الطلبات</span>
+                </div>
+                <div class="menu-item">
+                    <i class="fas fa-users"></i>
+                    <span>العملاء</span>
+                </div>
+                <div class="menu-item">
+                    <i class="fas fa-chart-line"></i>
+                    <span>التقارير</span>
+                </div>
+                <div class="menu-item">
+                    <i class="fas fa-cog"></i>
+                    <span>الإعدادات</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- المحتوى الرئيسي -->
+        <div class="main-content">
+            <!-- شريط التنقل العلوي -->
+            <div class="top-nav">
+                <button class="menu-toggle" id="menuToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="بحث...">
+                </div>
+                <div class="user-info">
+                    <div class="notification-bell" id="notificationBell">
+                        <i class="fas fa-bell"></i>
+                        <span class="badge">3</span>
+                    </div>
+                    <img src="https://via.placeholder.com/35" alt="User" class="user-img">
+                </div>
+            </div>
+
+            <!-- محتوى الصفحة -->
+            <div class="page-content">
+                <!-- بطاقات الإحصائيات -->
+                <div class="stats-cards">
+                    <div class="stat-card">
+                        <h3>الطلبات اليوم</h3>
+                        <div class="value">24</div>
+                        <div class="change up">
+                            <i class="fas fa-arrow-up"></i>
+                            <span>12% عن الأمس</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>إجمالي الإيرادات</h3>
+                        <div class="value">1,245 AED</div>
+                        <div class="change up">
+                            <i class="fas fa-arrow-up"></i>
+                            <span>8% عن الأسبوع الماضي</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>طلبات جديدة</h3>
+                        <div class="value">5</div>
+                        <div class="change down">
+                            <i class="fas fa-arrow-down"></i>
+                            <span>2% عن الأمس</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>متوسط وقت التجهيز</h3>
+                        <div class="value">15 دقيقة</div>
+                        <div class="change up">
+                            <i class="fas fa-arrow-down"></i>
+                            <span>3 دقائق أقل</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- قسم الطلبات -->
+                <div class="orders-section">
+                    <div class="section-header">
+                        <h2 class="section-title">الطلبات الأخيرة</h2>
+                        <div class="filter-tabs">
+                            <button class="tab-btn active">الكل</button>
+                            <button class="tab-btn">جديدة</button>
+                            <button class="tab-btn">قيد التجهيز</button>
+                            <button class="tab-btn">مكتملة</button>
+                        </div>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table class="orders-table">
+                            <thead>
+                                <tr>
+                                    <th>رقم الطلب</th>
+                                    <th>نوع الطلب</th>
+                                    <th>العميل</th>
+                                    <th>التاريخ</th>
+                                    <th>المجموع</th>
+                                    <th>الحالة</th>
+                                    <th>إجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ordersTableBody">
+                                <!-- سيتم إضافة الطلبات هنا ديناميكيًا -->
+                                <tr class="order-row new-order">
+                                    <td>
+                                        <span class="order-id">#ORD-2023-001</span>
+                                        <button class="btn-details" onclick="toggleDetails(this)">
+                                            <i class="fas fa-chevron-down"></i>
+                                        </button>
+                                    </td>
+                                    <td><span class="order-type">استلام من المحل</span></td>
+                                    <td>أحمد محمد</td>
+                                    <td>اليوم 12:30 م</td>
+                                    <td>105 AED</td>
+                                    <td><span class="order-status status-pending">قيد الانتظار</span></td>
+                                    <td>
+                                        <button class="action-btn btn-accept">
+                                            <i class="fas fa-check"></i>
+                                            <span>قبول</span>
+                                        </button>
+                                        <button class="action-btn btn-reject">
+                                            <i class="fas fa-times"></i>
+                                            <span>رفض</span>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="7" class="order-details">
+                                        <div class="details-row">
+                                            <div class="details-label">رقم الهاتف:</div>
+                                            <div>+971501234567</div>
+                                        </div>
+                                        <div class="details-row">
+                                            <div class="details-label">وقت الاستلام:</div>
+                                            <div>خلال 30 دقيقة</div>
+                                        </div>
+                                        <div class="details-row">
+                                            <div class="details-label">الطلبات:</div>
+                                            <div class="items-list">
+                                                <div class="item-row">
+                                                    <span>باستا كاربونارا x2</span>
+                                                    <span>90 AED</span>
+                                                </div>
+                                                <div class="item-row">
+                                                    <span>ليمون بالنعناع x1</span>
+                                                    <span>15 AED</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                
+                                <!-- طلب ثاني كمثال -->
+                                <tr class="order-row">
+                                    <td>
+                                        <span class="order-id">#ORD-2023-002</span>
+                                        <button class="btn-details" onclick="toggleDetails(this)">
+                                            <i class="fas fa-chevron-down"></i>
+                                        </button>
+                                    </td>
+                                    <td><span class="order-type">طلب محلي</span></td>
+                                    <td>طاولة 12</td>
+                                    <td>اليوم 12:15 م</td>
+                                    <td>90 AED</td>
+                                    <td><span class="order-status status-completed">مكتمل</span></td>
+                                    <td>
+                                        <button class="action-btn btn-complete" disabled>
+                                            <i class="fas fa-check-circle"></i>
+                                            <span>مكتمل</span>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="7" class="order-details">
+                                        <div class="details-row">
+                                            <div class="details-label">الطلبات:</div>
+                                            <div class="items-list">
+                                                <div class="item-row">
+                                                    <span>بيتزا بيتشوري x1</span>
+                                                    <span>55 AED</span>
+                                                </div>
+                                                <div class="item-row">
+                                                    <span>سلطة سيزر x1</span>
+                                                    <span>35 AED</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- لوحة الإشعارات -->
+        <div class="notification-panel" id="notificationPanel">
+            <div class="notification-header">
+                <h3>الإشعارات</h3>
+                <button class="close-notifications" id="closeNotifications">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="notification-list">
+                <div class="notification-item unread">
+                    <div class="notification-title">
+                        <span>طلب جديد</span>
+                        <span class="notification-time">منذ 5 دقائق</span>
+                    </div>
+                    <div class="notification-text">
+                        تم استلام طلب جديد من أحمد محمد بقيمة 105 AED
+                    </div>
+                </div>
+                <div class="notification-item unread">
+                    <div class="notification-title">
+                        <span>طلب محلي</span>
+                        <span class="notification-time">منذ 25 دقيقة</span>
+                    </div>
+                    <div class="notification-text">
+                        طلب من طاولة 12 بقيمة 90 AED
+                    </div>
+                </div>
+                <div class="notification-item">
+                    <div class="notification-title">
+                        <span>حجز جديد</span>
+                        <span class="notification-time">منذ ساعة</span>
+                    </div>
+                    <div class="notification-text">
+                        حجز طاولة لـ 4 أشخاص غداً 8:00 مساءً
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- تحكم الصوت -->
+        <div class="audio-control" id="audioControl">
+            <i class="fas fa-bell"></i>
+            <audio id="notificationAudio" src="https://assets.mixkit.co/sfx/preview/mixkit-positive-interface-beep-221.mp3"></audio>
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const menuToggle = document.getElementById('menuToggle');
+        const sidebar = document.getElementById('sidebar');
+        const notificationBell = document.getElementById('notificationBell');
+        const notificationPanel = document.getElementById('notificationPanel');
+        const closeNotifications = document.getElementById('closeNotifications');
+        const audioControl = document.getElementById('audioControl');
+        const notificationAudio = document.getElementById('notificationAudio');
+        const ordersTableBody = document.getElementById('ordersTableBody');
+
+        // متغيرات
+        let isSoundOn = true;
+        let orders = [
+            {
+                id: '#ORD-2023-001',
+                type: 'استلام من المحل',
+                customer: 'أحمد محمد',
+                phone: '+971501234567',
+                date: 'اليوم 12:30 م',
+                items: [
+                    { name: 'باستا كاربونارا', quantity: 2, price: 45 },
+                    { name: 'ليمون بالنعناع', quantity: 1, price: 15 }
+                ],
+                status: 'قيد الانتظار',
+                isNew: true
+            },
+            {
+                id: '#ORD-2023-002',
+                type: 'طلب محلي',
+                table: '12',
+                date: 'اليوم 12:15 م',
+                items: [
+                    { name: 'بيتزا بيتشوري', quantity: 1, price: 55 },
+                    { name: 'سلطة سيزر', quantity: 1, price: 35 }
+                ],
+                status: 'مكتمل',
+                isNew: false
+            }
+        ];
+
+        // أحداث
+        menuToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('open');
+        });
+
+        notificationBell.addEventListener('click', () => {
+            notificationPanel.classList.toggle('open');
+            // إزالة الإشعارات غير المقروءة عند فتح اللوحة
+            document.querySelectorAll('.notification-item.unread').forEach(item => {
+                item.classList.remove('unread');
+            });
+            document.querySelector('.badge').textContent = '0';
+        });
+
+        closeNotifications.addEventListener('click', () => {
+            notificationPanel.classList.remove('open');
+        });
+
+        audioControl.addEventListener('click', () => {
+            isSoundOn = !isSoundOn;
+            if (isSoundOn) {
+                audioControl.innerHTML = '<i class="fas fa-bell"></i>';
+                notificationAudio.muted = false;
+            } else {
+                audioControl.innerHTML = '<i class="fas fa-bell-slash"></i>';
+                notificationAudio.muted = true;
+            }
+        });
+
+        // تصفية الطلبات
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                filterOrders(this.textContent);
+            });
+        });
+
+        // وظائف
+        function toggleDetails(btn) {
+            const row = btn.closest('tr');
+            const detailsRow = row.nextElementSibling;
+            const icon = btn.querySelector('i');
+            
+            detailsRow.classList.toggle('show');
+            icon.classList.toggle('fa-chevron-down');
+            icon.classList.toggle('fa-chevron-up');
+        }
+
+        function filterOrders(filter) {
+            // في التطبيق الحقيقي، هنا يتم تصفية الطلبات من الخادم
+            console.log('تصفية الطلبات حسب:', filter);
+        }
+
+        function addNewOrder(order) {
+            const total = order.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            
+            const newRow = document.createElement('tr');
+            newRow.className = 'order-row new-order pulse';
+            newRow.innerHTML = `
+                <td>
+                    <span class="order-id">${order.id}</span>
+                    <button class="btn-details" onclick="toggleDetails(this)">
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                </td>
+                <td><span class="order-type">${order.type}</span></td>
+                <td>${order.customer || 'طاولة ' + order.table}</td>
+                <td>${order.date}</td>
+                <td>${total} AED</td>
+                <td><span class="order-status status-pending">قيد الانتظار</span></td>
+                <td>
+                    <button class="action-btn btn-accept" onclick="updateOrderStatus(this, 'accepted')">
+                        <i class="fas fa-check"></i>
+                        <span>قبول</span>
+                    </button>
+                    <button class="action-btn btn-reject" onclick="updateOrderStatus(this, 'rejected')">
+                        <i class="fas fa-times"></i>
+                        <span>رفض</span>
+                    </button>
+                </td>
+            `;
+            
+            const detailsRow = document.createElement('tr');
+            detailsRow.innerHTML = `
+                <td colspan="7" class="order-details">
+                    ${order.phone ? `
+                    <div class="details-row">
+                        <div class="details-label">رقم الهاتف:</div>
+                        <div>${order.phone}</div>
+                    </div>
+                    ` : ''}
+                    ${order.time ? `
+                    <div class="details-row">
+                        <div class="details-label">وقت ${order.type.includes('استلام') ? 'الاستلام' : 'الحجز'}:</div>
+                        <div>${order.time}</div>
+                    </div>
+                    ` : ''}
+                    <div class="details-row">
+                        <div class="details-label">الطلبات:</div>
+                        <div class="items-list">
+                            ${order.items.map(item => `
+                                <div class="item-row">
+                                    <span>${item.name} x${item.quantity}</span>
+                                    <span>${item.price * item.quantity} AED</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </td>
+            `;
+            
+            ordersTableBody.prepend(newRow);
+            ordersTableBody.prepend(detailsRow);
+            
+            // تشغيل صوت الإشعار
+            if (isSoundOn) {
+                notificationAudio.currentTime = 0;
+                notificationAudio.play();
+            }
+            
+            // تحديث العداد
+            const badge = document.querySelector('.badge');
+            badge.textContent = parseInt(badge.textContent) + 1;
+            
+            // إضافة إشعار جديد
+            addNotification(`طلب جديد`, `تم استلام ${order.type} من ${order.customer || 'طاولة ' + order.table} بقيمة ${total} AED`);
+            
+            // إزالة تأثير النبض بعد 5 ثواني
+            setTimeout(() => {
+                newRow.classList.remove('pulse');
+            }, 5000);
+        }
+
+        function updateOrderStatus(btn, status) {
+            const row = btn.closest('tr');
+            const statusCell = row.querySelector('.order-status');
+            const actionsCell = row.querySelector('td:last-child');
+            
+            if (status === 'accepted') {
+                statusCell.textContent = 'قيد التجهيز';
+                statusCell.className = 'order-status status-pending';
+                actionsCell.innerHTML = `
+                    <button class="action-btn btn-complete" onclick="updateOrderStatus(this, 'completed')">
+                        <i class="fas fa-check-circle"></i>
+                        <span>تم التجهيز</span>
+                    </button>
+                `;
+            } else if (status === 'completed') {
+                statusCell.textContent = 'مكتمل';
+                statusCell.className = 'order-status status-completed';
+                actionsCell.innerHTML = `
+                    <button class="action-btn btn-complete" disabled>
+                        <i class="fas fa-check-circle"></i>
+                        <span>مكتمل</span>
+                    </button>
+                `;
+            } else if (status === 'rejected') {
+                statusCell.textContent = 'ملغى';
+                statusCell.className = 'order-status status-canceled';
+                actionsCell.innerHTML = `
+                    <span style="color: var(--danger);">تم الرفض</span>
+                `;
+            }
+            
+            addNotification(`تحديث حالة الطلب`, `تم تغيير حالة ${row.querySelector('.order-id').textContent} إلى "${statusCell.textContent}"`);
+        }
+
+        function addNotification(title, text) {
+            const notificationList = document.querySelector('.notification-list');
+            const now = new Date();
+            const timeString = `منذ ${now.getMinutes()} دقيقة`;
+            
+            const notificationItem = document.createElement('div');
+            notificationItem.className = 'notification-item unread';
+            notificationItem.innerHTML = `
+                <div class="notification-title">
+                    <span>${title}</span>
+                    <span class="notification-time">${timeString}</span>
+                </div>
+                <div class="notification-text">${text}</div>
+            `;
+            
+            notificationList.prepend(notificationItem);
+        }
+
+        // محاكاة وصول طلبات جديدة كل 20-40 ثانية
+        function simulateNewOrder() {
+            const types = ['استلام من المحل', 'طلب محلي'];
+            const customers = ['محمد علي', 'فاطمة أحمد', 'خالد حسن', 'نورا سعيد'];
+            const items = [
+                { name: 'باستا كاربونارا', price: 45 },
+                { name: 'بيتزا بيتشوري', price: 55 },
+                { name: 'سلطة سيزر', price: 35 },
+                { name: 'تيراميسو', price: 30 },
+                { name: 'ليمون بالنعناع', price: 15 }
+            ];
+            
+            const type = types[Math.floor(Math.random() * types.length)];
+            const orderId = `#ORD-2023-${Math.floor(1000 + Math.random() * 9000)}`;
+            const now = new Date();
+            const timeString = `اليوم ${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')} ${now.getHours() >= 12 ? 'م' : 'ص'}`;
+            
+            const order = {
+                id: orderId,
+                type: type,
+                date: timeString,
+                items: [],
+                isNew: true
+            };
+            
+            if (type === 'استلام من المحل') {
+                order.customer = customers[Math.floor(Math.random() * customers.length)];
+                order.phone = `+97150${Math.floor(1000000 + Math.random() * 9000000)}`;
+                order.time = 'خلال 30 دقيقة';
+            } else {
+                order.table = Math.floor(1 + Math.random() * 32);
+            }
+            
+            // إضافة 1-3 عناصر عشوائية
+            const numItems = Math.floor(1 + Math.random() * 3);
+            for (let i = 0; i < numItems; i++) {
+                const randomItem = items[Math.floor(Math.random() * items.length)];
+                order.items.push({
+                    name: randomItem.name,
+                    price: randomItem.price,
+                    quantity: Math.floor(1 + Math.random() * 2)
+                });
+            }
+            
+            addNewOrder(order);
+            
+            // جدولة الطلب التالي
+            setTimeout(simulateNewOrder, 20000 + Math.random() * 20000);
+        }
+
+        // بدء المحاكاة بعد 5 ثواني
+        setTimeout(simulateNewOrder, 5000);
+    </script>
+</body>
+</html>
