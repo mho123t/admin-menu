@@ -5,782 +5,146 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>لوحة تحكم مطعم ريدان للمندي</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --primary-color: #c10e0e;
-            --secondary-color: #e67e22;
-            --dark-color: #333;
-            --light-color: #f4f4f4;
-            --success-color: #28a745;
-            --danger-color: #dc3545;
-            --warning-color: #ffc107;
-            --info-color: #17a2b8;
-        }
+        /* ... (الأنماط السابقة تبقى كما هي) ... */
         
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Arial', sans-serif;
-        }
-        
-        body {
-            background-color: #f5f5f5;
-            color: var(--dark-color);
-            line-height: 1.6;
-        }
-        
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 0 15px;
-        }
-        
-        header {
-            background-color: var(--primary-color);
-            color: white;
-            padding: 1rem 0;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        }
-        
-        .header-content {
+        .order-actions {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
+            gap: 10px;
+            margin-top: 15px;
         }
         
-        .logo {
-            display: flex;
-            align-items: center;
-        }
-        
-        .logo i {
-            font-size: 2rem;
-            margin-left: 1rem;
-        }
-        
-        .logo h1 {
-            font-size: 1.5rem;
-        }
-        
-        .admin-info {
-            display: flex;
-            align-items: center;
-        }
-        
-        .admin-info img {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            margin-left: 1rem;
-        }
-        
-        .admin-name {
-            font-weight: bold;
-        }
-        
-        .logout-btn {
-            background: none;
-            border: none;
-            color: white;
-            margin-right: 1rem;
-            cursor: pointer;
-        }
-        
-        .main-content {
-            display: flex;
-            min-height: calc(100vh - 70px);
-        }
-        
-        .sidebar {
-            width: 250px;
-            background-color: var(--dark-color);
-            color: white;
-            padding: 1.5rem 0;
-        }
-        
-        .sidebar-menu {
-            list-style: none;
-        }
-        
-        .sidebar-menu li {
-            margin-bottom: 0.5rem;
-        }
-        
-        .sidebar-menu li a {
-            display: block;
-            color: white;
-            text-decoration: none;
-            padding: 0.75rem 1.5rem;
-            transition: all 0.3s ease;
-        }
-        
-        .sidebar-menu li a:hover, .sidebar-menu li a.active {
-            background-color: var(--primary-color);
-        }
-        
-        .sidebar-menu li a i {
-            margin-left: 0.5rem;
-        }
-        
-        .content {
-            flex: 1;
-            padding: 1.5rem;
-            background-color: white;
-        }
-        
-        .dashboard-cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-        
-        .card {
-            background-color: white;
-            border-radius: 10px;
-            padding: 1.5rem;
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
-            text-align: center;
-        }
-        
-        .card-icon {
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
-        }
-        
-        .card-title {
-            font-size: 1rem;
-            color: #666;
-            margin-bottom: 0.5rem;
-        }
-        
-        .card-value {
-            font-size: 1.8rem;
-            font-weight: bold;
-            margin-bottom: 0.5rem;
-        }
-        
-        .card-difference {
-            font-size: 0.9rem;
-        }
-        
-        .card-difference.positive {
-            color: var(--success-color);
-        }
-        
-        .card-difference.negative {
-            color: var(--danger-color);
-        }
-        
-        .orders-section {
-            margin-top: 2rem;
-        }
-        
-        .section-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-        }
-        
-        .section-title {
-            font-size: 1.5rem;
-            color: var(--dark-color);
-        }
-        
-        .order-filters {
-            display: flex;
-        }
-        
-        .filter-btn {
-            background-color: white;
-            border: 1px solid #ddd;
-            padding: 0.5rem 1rem;
-            margin-left: 0.5rem;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        
-        .filter-btn.active, .filter-btn:hover {
-            background-color: var(--primary-color);
-            color: white;
-            border-color: var(--primary-color);
-        }
-        
-        .orders-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 1rem;
-        }
-        
-        .orders-table th, .orders-table td {
-            padding: 1rem;
-            text-align: right;
-            border-bottom: 1px solid #eee;
-        }
-        
-        .orders-table th {
-            background-color: #f9f9f9;
-            font-weight: bold;
-        }
-        
-        .order-status {
-            display: inline-block;
-            padding: 0.25rem 0.75rem;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: bold;
-        }
-        
-        .status-pending {
-            background-color: var(--warning-color);
-            color: var(--dark-color);
-        }
-        
-        .status-processing {
-            background-color: var(--info-color);
-            color: white;
-        }
-        
-        .status-completed {
+        .accept-btn {
             background-color: var(--success-color);
             color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
         }
         
-        .status-cancelled {
+        .reject-btn {
             background-color: var(--danger-color);
             color: white;
-        }
-        
-        .action-btn {
-            background: none;
             border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
             cursor: pointer;
-            font-size: 1rem;
-            margin-right: 0.5rem;
-        }
-        
-        .view-btn {
-            color: var(--info-color);
-        }
-        
-        .edit-btn {
-            color: var(--warning-color);
-        }
-        
-        .delete-btn {
-            color: var(--danger-color);
-        }
-        
-        .order-details-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s ease;
-        }
-        
-        .order-details-modal.active {
-            opacity: 1;
-            visibility: visible;
-        }
-        
-        .order-details-content {
-            background-color: white;
-            width: 90%;
-            max-width: 800px;
-            max-height: 90vh;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-        }
-        
-        .order-details-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1rem 1.5rem;
-            background-color: var(--primary-color);
-            color: white;
-        }
-        
-        .close-details {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 1.5rem;
-            cursor: pointer;
-        }
-        
-        .order-details-body {
-            padding: 1.5rem;
-            overflow-y: auto;
-            max-height: calc(90vh - 120px);
-        }
-        
-        .order-info {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 1.5rem;
-        }
-        
-        .info-group {
-            margin-bottom: 1rem;
-        }
-        
-        .info-label {
-            font-weight: bold;
-            color: #666;
-            margin-bottom: 0.25rem;
-        }
-        
-        .info-value {
-            font-size: 1.1rem;
-        }
-        
-        .order-items {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 1rem;
-        }
-        
-        .order-items th, .order-items td {
-            padding: 0.75rem;
-            text-align: right;
-            border-bottom: 1px solid #eee;
-        }
-        
-        .order-items th {
-            background-color: #f9f9f9;
-        }
-        
-        .order-details-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1rem 1.5rem;
-            border-top: 1px solid #eee;
-        }
-        
-        .order-total {
-            font-size: 1.2rem;
             font-weight: bold;
         }
         
-        .status-actions {
-            display: flex;
-        }
-        
-        .status-select {
-            padding: 0.5rem;
-            border-radius: 5px;
-            border: 1px solid #ddd;
-            margin-left: 0.5rem;
-        }
-        
-        .save-status {
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        
-        .notification {
+        .new-order-alert {
             position: fixed;
-            top: 1rem;
-            right: 1rem;
-            background-color: var(--success-color);
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--info-color);
             color: white;
-            padding: 1rem;
-            border-radius: 5px;
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
             z-index: 1100;
             display: flex;
             align-items: center;
             opacity: 0;
-            visibility: hidden;
             transition: all 0.3s ease;
         }
         
-        .notification.show {
+        .new-order-alert.show {
             opacity: 1;
-            visibility: visible;
+            top: 30px;
         }
         
-        .notification i {
-            margin-left: 0.5rem;
-            font-size: 1.2rem;
+        .new-order-alert-content {
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
         
-        .notification-sound {
-            display: none;
-        }
-        
-        @media (max-width: 992px) {
-            .main-content {
-                flex-direction: column;
-            }
-            
-            .sidebar {
-                width: 100%;
-                padding: 1rem 0;
-            }
-            
-            .sidebar-menu {
-                display: flex;
-                overflow-x: auto;
-                padding: 0 1rem;
-            }
-            
-            .sidebar-menu li {
-                margin-bottom: 0;
-                margin-left: 0.5rem;
-            }
-            
-            .sidebar-menu li a {
-                white-space: nowrap;
-            }
-        }
-        
-        @media (max-width: 768px) {
-            .header-content {
-                flex-direction: column;
-                text-align: center;
-            }
-            
-            .admin-info {
-                margin-top: 1rem;
-            }
-            
-            .dashboard-cards {
-                grid-template-columns: 1fr;
-            }
-            
-            .orders-table {
-                display: block;
-                overflow-x: auto;
-            }
-            
-            .order-info {
-                grid-template-columns: 1fr;
-            }
-        }
-        
-        @media (max-width: 576px) {
-            .section-header {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            
-            .order-filters {
-                margin-top: 1rem;
-                flex-wrap: wrap;
-            }
-            
-            .filter-btn {
-                margin: 0.25rem;
-            }
+        .new-order-alert-buttons {
+            margin-right: 15px;
+            display: flex;
+            gap: 10px;
         }
     </style>
 </head>
 <body>
-    <header>
-        <div class="container">
-            <div class="header-content">
-                <div class="logo">
-                    <i class="fas fa-utensils"></i>
-                    <h1>لوحة تحكم مطعم ريدان للمندي</h1>
-                </div>
-                <div class="admin-info">
-                    <span class="admin-name">مسؤول النظام</span>
-                    <img src="https://via.placeholder.com/40x40?text=Admin" alt="Admin">
-                    <button class="logout-btn">
-                        <i class="fas fa-sign-out-alt"></i>
-                    </button>
-                </div>
-            </div>
+    <!-- ... (بقية الهيكل يبقى كما هو) ... -->
+
+    <!-- إشعار الطلب الجديد -->
+    <div class="new-order-alert" id="newOrderAlert">
+        <div class="new-order-alert-content">
+            <i class="fas fa-bell"></i>
+            <span id="newOrderText">طلب جديد تم استلامه!</span>
         </div>
-    </header>
-    
-    <div class="main-content">
-        <div class="sidebar">
-            <ul class="sidebar-menu">
-                <li><a href="#" class="active"><i class="fas fa-tachometer-alt"></i> لوحة التحكم</a></li>
-                <li><a href="#"><i class="fas fa-shopping-cart"></i> الطلبات</a></li>
-                <li><a href="#"><i class="fas fa-utensils"></i> القائمة</a></li>
-                <li><a href="#"><i class="fas fa-users"></i> العملاء</a></li>
-                <li><a href="#"><i class="fas fa-chart-line"></i> التقارير</a></li>
-                <li><a href="#"><i class="fas fa-cog"></i> الإعدادات</a></li>
-            </ul>
-        </div>
-        
-        <div class="content">
-            <div class="dashboard-cards">
-                <div class="card">
-                    <div class="card-icon" style="color: var(--primary-color);">
-                        <i class="fas fa-shopping-cart"></i>
-                    </div>
-                    <h3 class="card-title">الطلبات اليوم</h3>
-                    <div class="card-value">24</div>
-                    <div class="card-difference positive">
-                        <i class="fas fa-arrow-up"></i> 12% عن الأمس
-                    </div>
-                </div>
-                
-                <div class="card">
-                    <div class="card-icon" style="color: var(--success-color);">
-                        <i class="fas fa-check-circle"></i>
-                    </div>
-                    <h3 class="card-title">طلبات مكتملة</h3>
-                    <div class="card-value">18</div>
-                    <div class="card-difference positive">
-                        <i class="fas fa-arrow-up"></i> 8% عن الأمس
-                    </div>
-                </div>
-                
-                <div class="card">
-                    <div class="card-icon" style="color: var(--info-color);">
-                        <i class="fas fa-money-bill-wave"></i>
-                    </div>
-                    <h3 class="card-title">إجمالي الإيرادات</h3>
-                    <div class="card-value">1,245 ر.س</div>
-                    <div class="card-difference positive">
-                        <i class="fas fa-arrow-up"></i> 15% عن الأمس
-                    </div>
-                </div>
-                
-                <div class="card">
-                    <div class="card-icon" style="color: var(--warning-color);">
-                        <i class="fas fa-clock"></i>
-                    </div>
-                    <h3 class="card-title">طلبات قيد الانتظار</h3>
-                    <div class="card-value">5</div>
-                    <div class="card-difference negative">
-                        <i class="fas fa-arrow-down"></i> 2 عن الأمس
-                    </div>
-                </div>
-            </div>
-            
-            <div class="orders-section">
-                <div class="section-header">
-                    <h2 class="section-title">الطلبات الحديثة</h2>
-                    <div class="order-filters">
-                        <button class="filter-btn active" data-filter="all">الكل</button>
-                        <button class="filter-btn" data-filter="pending">قيد الانتظار</button>
-                        <button class="filter-btn" data-filter="processing">قيد التنفيذ</button>
-                        <button class="filter-btn" data-filter="completed">مكتملة</button>
-                        <button class="filter-btn" data-filter="cancelled">ملغية</button>
-                    </div>
-                </div>
-                
-                <table class="orders-table">
-                    <thead>
-                        <tr>
-                            <th>رقم الطلب</th>
-                            <th>العميل</th>
-                            <th>التاريخ</th>
-                            <th>طريقة الاستلام</th>
-                            <th>المجموع</th>
-                            <th>الحالة</th>
-                            <th>الإجراءات</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- Orders will be loaded here dynamically -->
-                    </tbody>
-                </table>
-            </div>
+        <div class="new-order-alert-buttons">
+            <button class="accept-btn" id="acceptOrderBtn">قبول</button>
+            <button class="reject-btn" id="rejectOrderBtn">رفض</button>
         </div>
     </div>
-    
-    <!-- Order Details Modal -->
-    <div class="order-details-modal">
-        <div class="order-details-content">
-            <div class="order-details-header">
-                <h3>تفاصيل الطلب #<span class="order-id">12345</span></h3>
-                <button class="close-details">&times;</button>
-            </div>
-            <div class="order-details-body">
-                <div class="order-info">
-                    <div class="info-group">
-                        <div class="info-label">اسم العميل</div>
-                        <div class="info-value customer-name">محمد أحمد</div>
-                    </div>
-                    <div class="info-group">
-                        <div class="info-label">رقم الهاتف</div>
-                        <div class="info-value customer-phone">+966501234567</div>
-                    </div>
-                    <div class="info-group">
-                        <div class="info-label">تاريخ الطلب</div>
-                        <div class="info-value order-date">12/05/2023 03:45 م</div>
-                    </div>
-                    <div class="info-group">
-                        <div class="info-label">طريقة الاستلام</div>
-                        <div class="info-value delivery-method">توصيل</div>
-                    </div>
-                    <div class="info-group">
-                        <div class="info-label">عنوان التوصيل</div>
-                        <div class="info-value delivery-address">حي السلام، شارع الملك فهد، الرياض</div>
-                    </div>
-                    <div class="info-group">
-                        <div class="info-label">ملاحظات</div>
-                        <div class="info-value order-notes">بدون بصل</div>
-                    </div>
-                </div>
-                
-                <h4>عناصر الطلب</h4>
-                <table class="order-items">
-                    <thead>
-                        <tr>
-                            <th>الصنف</th>
-                            <th>الكمية</th>
-                            <th>السعر</th>
-                            <th>المجموع</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- Order items will be loaded here dynamically -->
-                    </tbody>
-                </table>
-            </div>
-            <div class="order-details-footer">
-                <div class="order-total">المجموع: <span class="total-amount">120 ر.س</span></div>
-                <div class="status-actions">
-                    <select class="status-select">
-                        <option value="pending">قيد الانتظار</option>
-                        <option value="processing">قيد التنفيذ</option>
-                        <option value="completed">مكتمل</option>
-                        <option value="cancelled">ملغي</option>
-                    </select>
-                    <button class="save-status">حفظ</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Notification -->
-    <div class="notification">
-        <i class="fas fa-bell"></i>
-        <span class="notification-text">طلب جديد تم استلامه!</span>
-    </div>
-    
-    <!-- Notification Sound -->
-    <audio class="notification-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-alarm-digital-clock-beep-989.mp3"></audio>
+
+    <!-- صوت الإشعار -->
+    <audio id="newOrderSound" src="https://assets.mixkit.co/sfx/preview/mixkit-alert-bells-echo-765.mp3"></audio>
     
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // DOM Elements
-            const ordersTable = document.querySelector('.orders-table tbody');
-            const orderDetailsModal = document.querySelector('.order-details-modal');
-            const closeDetailsBtn = document.querySelector('.close-details');
-            const viewOrderBtns = document.querySelectorAll('.view-btn');
-            const filterBtns = document.querySelectorAll('.filter-btn');
-            const statusSelect = document.querySelector('.status-select');
-            const saveStatusBtn = document.querySelector('.save-status');
-            const notification = document.querySelector('.notification');
-            const notificationSound = document.querySelector('.notification-sound');
+            // عناصر DOM
+            const ordersTableBody = document.getElementById('orders-table-body');
+            const newOrderSound = document.getElementById('newOrderSound');
+            const newOrderAlert = document.getElementById('newOrderAlert');
+            const newOrderText = document.getElementById('newOrderText');
+            const acceptOrderBtn = document.getElementById('acceptOrderBtn');
+            const rejectOrderBtn = document.getElementById('rejectOrderBtn');
             
-            // Sample orders data (in a real app, this would come from your backend)
-            let orders = [
-                {
-                    id: 12345,
-                    customer: 'محمد أحمد',
-                    date: '12/05/2023 03:45 م',
-                    method: 'توصيل',
-                    total: 120,
-                    status: 'pending',
-                    items: [
-                        { name: 'مندي لحم', quantity: 1, price: 45 },
-                        { name: 'مندي دجاج', quantity: 1, price: 35 },
-                        { name: 'سلطة يمنية', quantity: 2, price: 12 }
-                    ],
-                    customerInfo: {
-                        name: 'محمد أحمد',
-                        phone: '+966501234567',
-                        address: 'حي السلام، شارع الملك فهد، الرياض',
-                        notes: 'بدون بصل'
-                    }
-                },
-                {
-                    id: 12344,
-                    customer: 'أحمد علي',
-                    date: '12/05/2023 02:30 م',
-                    method: 'استلام من المحل',
-                    total: 75,
-                    status: 'processing',
-                    items: [
-                        { name: 'مندي دجاج', quantity: 2, price: 35 },
-                        { name: 'شاي يمني', quantity: 1, price: 8 }
-                    ],
-                    customerInfo: {
-                        name: 'أحمد علي',
-                        phone: '+966502345678',
-                        tableNumber: '5'
-                    }
-                },
-                {
-                    id: 12343,
-                    customer: 'سعيد محمد',
-                    date: '12/05/2023 01:15 م',
-                    method: 'توصيل',
-                    total: 90,
-                    status: 'completed',
-                    items: [
-                        { name: 'حنيذ لحم', quantity: 1, price: 50 },
-                        { name: 'عصير ليمون بالنعناع', quantity: 2, price: 10 }
-                    ],
-                    customerInfo: {
-                        name: 'سعيد محمد',
-                        phone: '+966503456789',
-                        address: 'حي النخيل، شارع الأمير محمد، الرياض',
-                        notes: 'توصيل سريع'
-                    }
-                },
-                {
-                    id: 12342,
-                    customer: 'خالد عبدالله',
-                    date: '12/05/2023 12:00 م',
-                    method: 'استلام من المحل',
-                    total: 35,
-                    status: 'cancelled',
-                    items: [
-                        { name: 'مندي دجاج', quantity: 1, price: 35 }
-                    ],
-                    customerInfo: {
-                        name: 'خالد عبدالله',
-                        phone: '+966504567890'
-                    }
-                }
-            ];
+            // بيانات الطلبات
+            let orders = [];
+            let currentOrder = null;
+            let newOrdersQueue = [];
             
-            // Load orders from localStorage if available
-            const savedOrders = JSON.parse(localStorage.getItem('restaurant_orders'));
-            if (savedOrders && savedOrders.length > 0) {
-                orders = savedOrders.concat(orders);
+            // تهيئة لوحة التحكم
+            function initDashboard() {
+                loadOrders();
+                setupEventListeners();
+                startOrderMonitoring();
             }
             
-            // Render orders table
-            function renderOrders(filter = 'all') {
-                ordersTable.innerHTML = '';
+            // تحميل الطلبات من localStorage
+            function loadOrders() {
+                const savedOrders = localStorage.getItem('restaurant_orders');
+                if (savedOrders) {
+                    orders = JSON.parse(savedOrders);
+                    updateDashboard();
+                }
+            }
+            
+            // تحديث لوحة التحكم
+            function updateDashboard() {
+                updateOrdersTable();
+                updateStatistics();
+            }
+            
+            // تحديث جدول الطلبات
+            function updateOrdersTable() {
+                ordersTableBody.innerHTML = '';
                 
-                const filteredOrders = filter === 'all' 
-                    ? orders 
-                    : orders.filter(order => order.status === filter);
+                if (orders.length === 0) {
+                    ordersTableBody.innerHTML = `
+                        <tr>
+                            <td colspan="7">
+                                <div class="no-orders">
+                                    <i class="fas fa-shopping-cart"></i>
+                                    <p>لا توجد طلبات</p>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
                 
-                filteredOrders.forEach(order => {
+                // عرض الطلبات بترتيب زمني عكسي (الأحدث أولاً)
+                orders.slice().reverse().forEach(order => {
                     const row = document.createElement('tr');
                     let statusClass = '';
                     let statusText = '';
@@ -790,142 +154,191 @@
                             statusClass = 'status-pending';
                             statusText = 'قيد الانتظار';
                             break;
-                        case 'processing':
+                        case 'accepted':
                             statusClass = 'status-processing';
-                            statusText = 'قيد التنفيذ';
+                            statusText = 'تم القبول';
                             break;
                         case 'completed':
                             statusClass = 'status-completed';
                             statusText = 'مكتمل';
                             break;
-                        case 'cancelled':
+                        case 'rejected':
                             statusClass = 'status-cancelled';
-                            statusText = 'ملغي';
+                            statusText = 'مرفوض';
                             break;
                     }
                     
                     row.innerHTML = `
-                        <td>#${order.id}</td>
-                        <td>${order.customer}</td>
+                        <td>#${order.orderNumber || order.id}</td>
+                        <td>${order.customerInfo?.name || order.customer || 'غير معروف'}</td>
                         <td>${order.date}</td>
                         <td>${order.method}</td>
-                        <td>${order.total} ر.س</td>
+                        <td>${order.total} درهم</td>
                         <td><span class="order-status ${statusClass}">${statusText}</span></td>
                         <td>
                             <button class="action-btn view-btn" data-id="${order.id}">
                                 <i class="fas fa-eye"></i>
+                                ${order.isNew ? '<span class="new-order-badge"></span>' : ''}
                             </button>
-                            <button class="action-btn edit-btn" data-id="${order.id}">
-                                <i class="fas fa-edit"></i>
+                            ${order.status === 'pending' ? `
+                            <button class="action-btn accept-btn" data-id="${order.id}" style="color: var(--success-color);">
+                                <i class="fas fa-check"></i>
                             </button>
-                            <button class="action-btn delete-btn" data-id="${order.id}">
-                                <i class="fas fa-trash"></i>
+                            <button class="action-btn reject-btn" data-id="${order.id}" style="color: var(--danger-color);">
+                                <i class="fas fa-times"></i>
                             </button>
+                            ` : ''}
                         </td>
                     `;
                     
-                    ordersTable.appendChild(row);
+                    ordersTableBody.appendChild(row);
                 });
                 
-                // Add event listeners to view buttons
-                document.querySelectorAll('.view-btn').forEach(btn => {
-                    btn.addEventListener('click', function() {
-                        const orderId = parseInt(this.getAttribute('data-id'));
-                        viewOrderDetails(orderId);
-                    });
+                // إضافة مستمعي الأحداث للأزرار
+                addEventListenersToButtons();
+            }
+            
+            // تحديث الإحصائيات
+            function updateStatistics() {
+                // ... (كود تحديث الإحصائيات السابق) ...
+            }
+            
+            // مراقبة الطلبات الجديدة
+            function startOrderMonitoring() {
+                // التحقق فوراً عند التحميل
+                checkForNewOrders();
+                
+                // التحقق كل 3 ثوان
+                setInterval(checkForNewOrders, 3000);
+                
+                // مراقبة تغييرات localStorage
+                window.addEventListener('storage', function(event) {
+                    if (event.key === 'restaurant_orders') {
+                        checkForNewOrders();
+                    }
                 });
             }
             
-            // View order details
-            function viewOrderDetails(orderId) {
-                const order = orders.find(o => o.id === orderId);
+            // التحقق من وجود طلبات جديدة
+            function checkForNewOrders() {
+                const savedOrders = JSON.parse(localStorage.getItem('restaurant_orders')) || [];
                 
-                if (order) {
-                    // Set order details
-                    document.querySelector('.order-id').textContent = order.id;
-                    document.querySelector('.customer-name').textContent = order.customerInfo.name;
-                    document.querySelector('.customer-phone').textContent = order.customerInfo.phone;
-                    document.querySelector('.order-date').textContent = order.date;
-                    document.querySelector('.delivery-method').textContent = order.method;
+                if (savedOrders.length > orders.length) {
+                    // تحديد الطلبات الجديدة
+                    const newOrders = savedOrders.slice(orders.length);
                     
-                    if (order.method === 'توصيل') {
-                        document.querySelector('.delivery-address').textContent = order.customerInfo.address || '--';
-                    } else {
-                        document.querySelector('.delivery-address').textContent = order.customerInfo.tableNumber 
-                            ? `طاولة رقم ${order.customerInfo.tableNumber}` 
-                            : '--';
+                    // إضافة إلى قائمة الانتظار
+                    newOrders.forEach(order => {
+                        if (!orders.some(o => o.id === order.id)) {
+                            newOrdersQueue.push(order);
+                        }
+                    });
+                    
+                    // تحديث قائمة الطلبات
+                    orders = savedOrders;
+                    
+                    // معالجة الطلبات الجديدة
+                    processNewOrdersQueue();
+                }
+            }
+            
+            // معالجة طابور الطلبات الجديدة
+            function processNewOrdersQueue() {
+                if (newOrdersQueue.length > 0 && !newOrderAlert.classList.contains('show')) {
+                    const newOrder = newOrdersQueue.shift();
+                    showNewOrderAlert(newOrder);
+                }
+            }
+            
+            // عرض إشعار الطلب الجديد
+            function showNewOrderAlert(order) {
+                // تشغيل الصوت
+                newOrderSound.play();
+                
+                // تعيين نص الإشعار
+                newOrderText.textContent = `طلب جديد #${order.orderNumber || order.id} من ${order.customerInfo?.name || order.customer}`;
+                
+                // تعيين معرّف الطلب في أزرار القبول/الرفض
+                acceptOrderBtn.dataset.id = order.id;
+                rejectOrderBtn.dataset.id = order.id;
+                
+                // عرض الإشعار
+                newOrderAlert.classList.add('show');
+                
+                // إخفاء الإشعار تلقائياً بعد 10 ثوان إذا لم يتم الرد
+                setTimeout(() => {
+                    if (newOrderAlert.classList.contains('show')) {
+                        newOrderAlert.classList.remove('show');
+                        // معالجة الطلب التالي في الطابور بعد 1 ثانية
+                        setTimeout(processNewOrdersQueue, 1000);
+                    }
+                }, 10000);
+            }
+            
+            // إخفاء إشعار الطلب الجديد
+            function hideNewOrderAlert() {
+                newOrderAlert.classList.remove('show');
+                // معالجة الطلب التالي في الطابور بعد 1 ثانية
+                setTimeout(processNewOrdersQueue, 1000);
+            }
+            
+            // قبول الطلب
+            function acceptOrder(orderId) {
+                const orderIndex = orders.findIndex(o => o.id == orderId);
+                if (orderIndex !== -1) {
+                    orders[orderIndex].status = 'accepted';
+                    orders[orderIndex].isNew = false;
+                    localStorage.setItem('restaurant_orders', JSON.stringify(orders));
+                    updateDashboard();
+                    showNotification('تم قبول الطلب بنجاح');
+                }
+            }
+            
+            // رفض الطلب
+            function rejectOrder(orderId) {
+                const orderIndex = orders.findIndex(o => o.id == orderId);
+                if (orderIndex !== -1) {
+                    orders[orderIndex].status = 'rejected';
+                    orders[orderIndex].isNew = false;
+                    localStorage.setItem('restaurant_orders', JSON.stringify(orders));
+                    updateDashboard();
+                    showNotification('تم رفض الطلب بنجاح');
+                }
+            }
+            
+            // إضافة مستمعي الأحداث
+            function setupEventListeners() {
+                // قبول الطلب من الإشعار
+                acceptOrderBtn.addEventListener('click', function() {
+                    const orderId = this.dataset.id;
+                    acceptOrder(orderId);
+                    hideNewOrderAlert();
+                });
+                
+                // رفض الطلب من الإشعار
+                rejectOrderBtn.addEventListener('click', function() {
+                    const orderId = this.dataset.id;
+                    rejectOrder(orderId);
+                    hideNewOrderAlert();
+                });
+                
+                // قبول/رفض الطلب من الجدول
+                document.addEventListener('click', function(e) {
+                    if (e.target.closest('.accept-btn')) {
+                        const orderId = e.target.closest('.accept-btn').dataset.id;
+                        acceptOrder(orderId);
                     }
                     
-                    document.querySelector('.order-notes').textContent = order.customerInfo.notes || '--';
-                    
-                    // Set order items
-                    const orderItemsTable = document.querySelector('.order-items tbody');
-                    orderItemsTable.innerHTML = '';
-                    
-                    order.items.forEach(item => {
-                        const row = document.createElement('tr');
-                        row.innerHTML = `
-                            <td>${item.name}</td>
-                            <td>${item.quantity}</td>
-                            <td>${item.price} ر.س</td>
-                            <td>${item.price * item.quantity} ر.س</td>
-                        `;
-                        orderItemsTable.appendChild(row);
-                    });
-                    
-                    // Set total
-                    document.querySelector('.total-amount').textContent = `${order.total} ر.س`;
-                    
-                    // Set current status
-                    statusSelect.value = order.status;
-                    
-                    // Show modal
-                    orderDetailsModal.classList.add('active');
-                }
+                    if (e.target.closest('.reject-btn')) {
+                        const orderId = e.target.closest('.reject-btn').dataset.id;
+                        rejectOrder(orderId);
+                    }
+                });
             }
             
-            // Close order details modal
-            closeDetailsBtn.addEventListener('click', function() {
-                orderDetailsModal.classList.remove('active');
-            });
-            
-            // Filter orders
-            filterBtns.forEach(btn => {
-                btn.addEventListener('click', function() {
-                    filterBtns.forEach(b => b.classList.remove('active'));
-                    this.classList.add('active');
-                    
-                    const filter = this.getAttribute('data-filter');
-                    renderOrders(filter);
-                });
-            });
-            
-            // Save status change
-            saveStatusBtn.addEventListener('click', function() {
-                const orderId = parseInt(document.querySelector('.order-id').textContent);
-                const newStatus = statusSelect.value;
-                
-                const orderIndex = orders.findIndex(o => o.id === orderId);
-                if (orderIndex !== -1) {
-                    orders[orderIndex].status = newStatus;
-                    
-                    // In a real app, you would send this update to your backend
-                    localStorage.setItem('restaurant_orders', JSON.stringify(orders));
-                    
-                    // Update the orders table
-                    const currentFilter = document.querySelector('.filter-btn.active').getAttribute('data-filter');
-                    renderOrders(currentFilter);
-                    
-                    // Close the modal
-                    orderDetailsModal.classList.remove('active');
-                    
-                    // Show notification
-                    showNotification('تم تحديث حالة الطلب بنجاح');
-                }
-            });
-            
-            // Show notification
+            // عرض الإشعار
             function showNotification(message) {
+                const notification = document.querySelector('.notification');
                 notification.querySelector('.notification-text').textContent = message;
                 notification.classList.add('show');
                 
@@ -934,81 +347,8 @@
                 }, 3000);
             }
             
-            // Simulate new order notification (in a real app, this would come from a WebSocket or polling)
-            function simulateNewOrder() {
-                setTimeout(() => {
-                    const newOrder = {
-                        id: Math.floor(10000 + Math.random() * 90000),
-                        customer: 'عميل جديد',
-                        date: new Date().toLocaleString('ar-SA'),
-                        method: Math.random() > 0.5 ? 'توصيل' : 'استلام من المحل',
-                        total: Math.floor(30 + Math.random() * 100),
-                        status: 'pending',
-                        items: [
-                            { name: 'مندي دجاج', quantity: 1, price: 35 },
-                            { name: 'سلطة يمنية', quantity: 1, price: 12 }
-                        ],
-                        customerInfo: {
-                            name: 'عميل جديد',
-                            phone: '+96650' + Math.floor(1000000 + Math.random() * 9000000),
-                            address: 'عنوان جديد'
-                        }
-                    };
-                    
-                    orders.unshift(newOrder);
-                    localStorage.setItem('restaurant_orders', JSON.stringify(orders));
-                    
-                    // Play notification sound
-                    notificationSound.play();
-                    
-                    // Show notification
-                    showNotification('طلب جديد تم استلامه! #' + newOrder.id);
-                    
-                    // Update orders table if on all or pending filter
-                    const currentFilter = document.querySelector('.filter-btn.active').getAttribute('data-filter');
-                    if (currentFilter === 'all' || currentFilter === 'pending') {
-                        renderOrders(currentFilter);
-                    }
-                    
-                    // Simulate another new order after random time
-                    simulateNewOrder();
-                }, Math.floor(30000 + Math.random() * 120000)); // Between 30s and 2.5m
-            }
-            
-            // Initial render
-            renderOrders();
-            
-            // Start simulating new orders (in a real app, this would not be needed)
-            simulateNewOrder();
-            
-            // Listen for new orders from customer page (simulated with localStorage event)
-            window.addEventListener('storage', function(event) {
-                if (event.key === 'restaurant_orders') {
-                    const newOrders = JSON.parse(event.newValue);
-                    if (newOrders.length > orders.length) {
-                        // New order added
-                        const newOrder = newOrders.find(order => 
-                            !orders.some(o => o.id === order.id)
-                        );
-                        
-                        if (newOrder) {
-                            orders = newOrders;
-                            
-                            // Play notification sound
-                            notificationSound.play();
-                            
-                            // Show notification
-                            showNotification('طلب جديد تم استلامه! #' + newOrder.id);
-                            
-                            // Update orders table if on all or pending filter
-                            const currentFilter = document.querySelector('.filter-btn.active').getAttribute('data-filter');
-                            if (currentFilter === 'all' || currentFilter === 'pending') {
-                                renderOrders(currentFilter);
-                            }
-                        }
-                    }
-                }
-            });
+            // تهيئة لوحة التحكم
+            initDashboard();
         });
     </script>
 </body>
