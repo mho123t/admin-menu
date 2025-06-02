@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة تحكم مطعم ريدان للمندي</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* جميع الأنماط السابقة تبقى كما هي */
+        
+        /* أنماط جديدة للإشعارات */
+        .alert-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            transform: translateX(150%);
+            transition: transform 0.3s ease;
+        }
+        
+        .alert-notification.show {
+            transform: translateX(0);
+        }
+        
+        .alert-notification.reject {
+            background-color: #f44336;
+        }
+        
+        .alert-buttons {
+            margin-right: 15px;
+            display: flex;
+            gap: 10px;
+        }
+        
+        .alert-btn {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .accept-btn {
+            background-color: white;
+            color: #4CAF50;
+        }
+        
+        .reject-btn {
+            background-color: white;
+            color: #f44336;
+        }
+    </style>
+</head>
+<body>
+    <!-- ... (بقية الهيكل كما هو) ... -->
+
+    <!-- إشعار الطلب الجديد -->
+    <div class="alert-notification" id="orderAlert">
+        <div class="alert-buttons">
+            <button class="alert-btn accept-btn" id="acceptBtn">قبول</button>
+            <button class="alert-btn reject-btn" id="rejectBtn">رفض</button>
+        </div>
+        <div id="alertMessage">طلب جديد تم استلامه!</div>
+    </div>
+
+    <!-- صوت الإشعار -->
+    <audio id="notificationSound" src="https://assets.mixkit.co/sfx/preview/mixkit-alert-quick-notice-1711.mp3"></audio>
+    
+    <script>
+        // متغيرات النظام
+        let allOrders = [];
+        let currentOrders = [];
+        let newOrders = [];
+        let currentAlertOrder = null;
+        
+        // عناصر DOM
+        const ordersTableBody = document.getElementById('orders-table-body');
+        const notificationSound = document.getElementById('notificationSound');
+        const orderAlert = document.getElementById('orderAlert');
+        const alertMessage = document.getElementById('alertMessage');
+        const acceptBtn = document.getElementById('acceptBtn');
+        const rejectBtn = document.getElementById('rejectBtn');
+        
+        // تهيئة لوحة التحكم
+        function initDashboard() {
+            loadOrders();
+            setupEventListeners();
+            startMonitoring();
+            updateDashboard();
+        }
+        
+        // تحميل الطلبات من localStorage
+        function loadOrders() {
+            const savedOrders = localStorage.getItem('restaurant_orders');
+            if (savedOrders) {
+                allOrders = JSON.parse(savedOrders);
+                currentOrders = [...allOrders];
+            }
+        }
+        
+        // تحديث لوحة التحكم
+        function updateDashboard() {
+            updateOrdersTable();
+            updateStatistics();
+        }
+        
+        // تحديث جدول الطلبات
+        function updateOrdersTable() {
+            ordersTableBody.innerHTML = '';
+            
+            if (currentOrders.length === 0) {
+                ordersTableBody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="no-orders">
+                            <i class="fas fa-shopping-cart"></i>
+                            <p>لا توجد طلبات</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            // عرض الطلبات بترتيب زمني عكسي (الأحدث أولاً)
+            currentOrders.slice().reverse().forEach(order => {
+                const row = document.createElement('tr');
+                let statusClass = '';
+                let statusText = '';
+                
+                switch(order.status) {
+                    case 'pending':
+                        statusClass = 'status-pending';
+                        statusText = 'قيد الانتظار';
+                        break;
+                    case 'accepted':
+                        statusClass = 'status-processing';
+                        statusText = 'تم القبول';
+                        break;
+                    case 'completed':
+                        statusClass = 'status-completed';
+                        statusText = 'مكتمل';
+                        break;
+                    case 'rejected':
+                        statusClass = 'status-cancelled';
+                        statusText = 'مرفوض';
+                        break;
+                }
+                
+                row.innerHTML = `
+                    <td>#${order.orderNumber || order.id}</td>
+                    <td>${order.customerInfo?.name || order.customer || 'غير معروف'}</td>
+                    <td>${order.date}</td>
+                    <td>${order.method}</td>
+                    <td>${order.total} درهم</td>
+                    <td><span class="order-status ${statusClass}">${statusText}</span></td>
+                    <td>
+                        <button class="action-btn view-btn" data-id="${order.id}">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        ${order.status === 'pending' ? `
+                        <button class="action-btn accept-btn" data-id="${order.id}">
+                            <i class="fas fa-check"></i>
+                        </button>
+                        <button class="action-btn reject-btn" data-id="${order.id}">
+                            <i class="fas fa-times"></i>
+                        </button>
+                        ` : ''}
+                    </td>
+                `;
+                
+                ordersTableBody.appendChild(row);
+            });
+            
+            // إضافة مستمعي الأحداث للأزرار
+            addButtonsEventListeners();
+        }
+        
+        // بدء مراقبة الطلبات الجديدة
+        function startMonitoring() {
+            // التحقق كل ثانيتين
+            setInterval(checkForNewOrders, 2000);
+            
+            // مراقبة تغييرات localStorage
+            window.addEventListener('storage', function(e) {
+                if (e.key === 'restaurant_orders') {
+                    checkForNewOrders();
+                }
+            });
+        }
+        
+        // التحقق من الطلبات الجديدة
+        function checkForNewOrders() {
+            const savedOrders = JSON.parse(localStorage.getItem('restaurant_orders')) || [];
+            
+            if (savedOrders.length > allOrders.length) {
+                // تحديد الطلبات الجديدة
+                newOrders = savedOrders.slice(allOrders.length);
+                
+                // حفظ جميع الطلبات
+                allOrders = savedOrders;
+                currentOrders = [...allOrders];
+                
+                // معالجة الطلبات الجديدة
+                processNewOrders();
+            }
+        }
+        
+        // معالجة الطلبات الجديدة
+        function processNewOrders() {
+            if (newOrders.length > 0 && !orderAlert.classList.contains('show')) {
+                currentAlertOrder = newOrders.shift();
+                showOrderAlert(currentAlertOrder);
+            }
+        }
+        
+        // عرض إشعار الطلب الجديد
+        function showOrderAlert(order) {
+            // تشغيل صوت الإشعار
+            notificationSound.play();
+            
+            // تعيين نص الإشعار
+            alertMessage.textContent = `طلب جديد #${order.orderNumber} من ${order.customerInfo?.name}`;
+            
+            // تعيين معرّف الطلب في أزرار القبول/الرفض
+            acceptBtn.dataset.id = order.id;
+            rejectBtn.dataset.id = order.id;
+            
+            // عرض الإشعار
+            orderAlert.classList.add('show');
+            
+            // إخفاء الإشعار تلقائياً بعد 10 ثوان إذا لم يتم الرد
+            setTimeout(() => {
+                if (orderAlert.classList.contains('show')) {
+                    orderAlert.classList.remove('show');
+                    // متابعة معالجة الطلبات الجديدة
+                    setTimeout(processNewOrders, 1000);
+                }
+            }, 10000);
+        }
+        
+        // إخفاء إشعار الطلب
+        function hideOrderAlert() {
+            orderAlert.classList.remove('show');
+            // متابعة معالجة الطلبات الجديدة بعد ثانية
+            setTimeout(processNewOrders, 1000);
+        }
+        
+        // قبول الطلب
+        function acceptOrder(orderId) {
+            const orderIndex = allOrders.findIndex(o => o.id == orderId);
+            if (orderIndex !== -1) {
+                allOrders[orderIndex].status = 'accepted';
+                localStorage.setItem('restaurant_orders', JSON.stringify(allOrders));
+                currentOrders = [...allOrders];
+                updateDashboard();
+                showAlert('تم قبول الطلب بنجاح', 'success');
+            }
+        }
+        
+        // رفض الطلب
+        function rejectOrder(orderId) {
+            const orderIndex = allOrders.findIndex(o => o.id == orderId);
+            if (orderIndex !== -1) {
+                allOrders[orderIndex].status = 'rejected';
+                localStorage.setItem('restaurant_orders', JSON.stringify(allOrders));
+                currentOrders = [...allOrders];
+                updateDashboard();
+                showAlert('تم رفض الطلب بنجاح', 'error');
+            }
+        }
+        
+        // عرض إشعار عمل
+        function showAlert(message, type) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert ${type}`;
+            alertDiv.textContent = message;
+            document.body.appendChild(alertDiv);
+            
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 3000);
+        }
+        
+        // إضافة مستمعي الأحداث للأزرار
+        function addButtonsEventListeners() {
+            // مستمعي أحداث القبول/الرفض من الجدول
+            document.querySelectorAll('.accept-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const orderId = this.dataset.id;
+                    acceptOrder(orderId);
+                });
+            });
+            
+            document.querySelectorAll('.reject-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const orderId = this.dataset.id;
+                    rejectOrder(orderId);
+                });
+            });
+        }
+        
+        // إعداد مستمعي الأحداث الرئيسية
+        function setupEventListeners() {
+            // قبول الطلب من الإشعار
+            acceptBtn.addEventListener('click', function() {
+                const orderId = this.dataset.id;
+                acceptOrder(orderId);
+                hideOrderAlert();
+            });
+            
+            // رفض الطلب من الإشعار
+            rejectBtn.addEventListener('click', function() {
+                const orderId = this.dataset.id;
+                rejectOrder(orderId);
+                hideOrderAlert();
+            });
+        }
+        
+        // بدء تشغيل لوحة التحكم
+        initDashboard();
+    </script>
+</body>
+</html>
