@@ -1,89 +1,491 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8" />
-  <title>لوحة تحكم ريدان</title>
-  <style>
-    body { font-family: sans-serif; direction: rtl; text-align: center; background: #f5f5f5; }
-    form { margin: 20px auto; padding: 20px; background: #fff; width: 350px; border-radius: 10px; box-shadow: 0 0 10px #ccc; }
-    input, button { margin: 5px 0; padding: 10px; width: 90%; border-radius: 5px; border: 1px solid #ccc; }
-    .product { background: #fff; padding: 10px; margin: 10px auto; width: 300px; border: 1px solid #ccc; border-radius: 10px; box-shadow: 0 0 5px #ddd; }
-    img { width: 100%; height: 150px; object-fit: cover; border-radius: 5px; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة تحكم مطعم ريدان للمندي</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .login-form {
+            max-width: 400px;
+            margin: 100px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .dashboard {
+            display: none;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            padding: 12px;
+            text-align: right;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        button {
+            padding: 8px 12px;
+            margin: 0 5px;
+            cursor: pointer;
+        }
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+        }
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            background: #eee;
+            margin-left: 5px;
+        }
+        .tab.active {
+            background: #ddd;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+    </style>
 </head>
 <body>
-  <h2>📦 لوحة تحكم - ريدان</h2>
+    <div class="container">
+        <!-- نموذج تسجيل الدخول -->
+        <div id="loginForm" class="login-form">
+            <h2>تسجيل دخول المسؤول</h2>
+            <form id="loginFormElement">
+                <div>
+                    <label>البريد الإلكتروني:</label>
+                    <input type="email" id="email" required>
+                </div>
+                <div>
+                    <label>كلمة المرور:</label>
+                    <input type="password" id="password" required>
+                </div>
+                <button type="submit">تسجيل الدخول</button>
+            </form>
+        </div>
 
-  <form id="productForm">
-    <input type="text" id="name_ar" placeholder="اسم المنتج بالعربي" required />
-    <input type="text" id="name_en" placeholder="Product Name (English)" required />
-    <input type="number" id="price" placeholder="السعر بالدرهم" required />
-    <input type="text" id="image" placeholder="رابط الصورة (URL)" required />
-    <button type="submit">➕ أضف المنتج</button>
-  </form>
+        <!-- لوحة التحكم -->
+        <div id="dashboard" class="dashboard">
+            <h1>لوحة تحكم مطعم ريدان للمندي</h1>
+            
+            <div class="tabs">
+                <div class="tab active" onclick="openTab('products')">المنتجات</div>
+                <div class="tab" onclick="openTab('orders')">الطلبات</div>
+                <div class="tab" onclick="openTab('settings')">الإعدادات</div>
+            </div>
+            
+            <!-- قسم المنتجات -->
+            <div id="products" class="tab-content active">
+                <h2>إدارة المنتجات</h2>
+                <button onclick="showAddProductForm()">إضافة منتج جديد</button>
+                <table id="productsTable">
+                    <thead>
+                        <tr>
+                            <th>الصورة</th>
+                            <th>الاسم</th>
+                            <th>السعر</th>
+                            <th>الحالة</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+                
+                <!-- نموذج إضافة/تعديل منتج -->
+                <div id="productForm" style="display:none; margin-top:20px;">
+                    <h3 id="formTitle">إضافة منتج جديد</h3>
+                    <form id="productFormElement">
+                        <input type="hidden" id="productId">
+                        <div>
+                            <label>اسم المنتج:</label>
+                            <input type="text" id="productName" required>
+                        </div>
+                        <div>
+                            <label>السعر:</label>
+                            <input type="number" id="productPrice" required>
+                        </div>
+                        <div>
+                            <label>الصورة (رابط URL):</label>
+                            <input type="url" id="productImage">
+                        </div>
+                        <div>
+                            <label>الحالة:</label>
+                            <select id="productStatus">
+                                <option value="true">متاح</option>
+                                <option value="false">غير متاح</option>
+                            </select>
+                        </div>
+                        <button type="submit">حفظ</button>
+                        <button type="button" onclick="hideProductForm()">إلغاء</button>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- قسم الطلبات -->
+            <div id="orders" class="tab-content">
+                <h2>إدارة الطلبات</h2>
+                <table id="ordersTable">
+                    <thead>
+                        <tr>
+                            <th>رقم الطلب</th>
+                            <th>العميل</th>
+                            <th>المجموع</th>
+                            <th>الحالة</th>
+                            <th>التاريخ</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            
+            <!-- قسم الإعدادات -->
+            <div id="settings" class="tab-content">
+                <h2>إعدادات المتجر</h2>
+                <form id="settingsForm">
+                    <div>
+                        <label>اسم المتجر:</label>
+                        <input type="text" id="storeName" required>
+                    </div>
+                    <div>
+                        <label>رسوم التوصيل:</label>
+                        <input type="number" id="deliveryFee" required>
+                    </div>
+                    <div>
+                        <label>وقت الفتح:</label>
+                        <input type="time" id="openingTime" required>
+                    </div>
+                    <div>
+                        <label>وقت الإغلاق:</label>
+                        <input type="time" id="closingTime" required>
+                    </div>
+                    <button type="submit">حفظ الإعدادات</button>
+                </form>
+            </div>
+        </div>
+    </div>
 
-  <div id="productsList">⏳ جاري تحميل المنتجات...</div>
+    <script>
+        // تكوين Supabase
+        const supabaseUrl = 'https://vzizdvblkoqhvfmxmdre.supabase.co'
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ6aXpkdmJsa29xaHZmbXhtZHJlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwNDk4MTcsImV4cCI6MjA2NTYyNTgxN30.s2pICeyVF3YWl-PrISiHSanpbHL-JREt0RqlHG3nAHg'
+        const supabase = supabase.createClient(supabaseUrl, supabaseKey)
 
-  <script type="module">
-    const SUPABASE_URL = "https://vzizdvblkoqhvfmxmdre.supabase.co";
-    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ6aXpkdmJsa29xaHZmbXhtZHJlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwNDk4MTcsImV4cCI6MjA2NTYyNTgxN30.s2pICeyVF3YWl-PrISiHSanpbHL-JREt0RqlHG3nAHg";
+        // متغيرات التطبيق
+        let currentUser = null
 
-    import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
-    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+        // تسجيل الدخول
+        document.getElementById('loginFormElement').addEventListener('submit', async (e) => {
+            e.preventDefault()
+            const email = document.getElementById('email').value
+            const password = document.getElementById('password').value
+            
+            try {
+                const { data, error } = await supabase.auth.signInWithPassword({
+                    email: email,
+                    password: password
+                })
+                
+                if (error) throw error
+                
+                currentUser = data.user
+                document.getElementById('loginForm').style.display = 'none'
+                document.getElementById('dashboard').style.display = 'block'
+                loadDashboardData()
+            } catch (error) {
+                alert('فشل تسجيل الدخول: ' + error.message)
+            }
+        })
 
-    const form = document.getElementById('productForm');
-    const nameAr = document.getElementById('name_ar');
-    const nameEn = document.getElementById('name_en');
-    const price = document.getElementById('price');
-    const image = document.getElementById('image');
-    const productsList = document.getElementById('productsList');
+        // تحميل بيانات لوحة التحكم
+        async function loadDashboardData() {
+            await loadProducts()
+            await loadOrders()
+            await loadSettings()
+        }
 
-    form.onsubmit = async (e) => {
-      e.preventDefault();
-      const { error } = await supabase.from('products').insert([{
-        name_ar: nameAr.value,
-        name_en: nameEn.value,
-        price: parseFloat(price.value),
-        image: image.value
-      }]);
-      if (error) {
-        alert("❌ خطأ: " + error.message);
-      } else {
-        alert("✅ تم إضافة المنتج!");
-        form.reset();
-        loadProducts();
-      }
-    };
+        // إدارة المنتجات
+        async function loadProducts() {
+            const { data: products, error } = await supabase
+                .from('products')
+                .select('*')
+                .order('created_at', { ascending: false })
+            
+            if (error) {
+                console.error('Error loading products:', error)
+                return
+            }
+            
+            const tbody = document.querySelector('#productsTable tbody')
+            tbody.innerHTML = ''
+            
+            products.forEach(product => {
+                const row = `
+                    <tr>
+                        <td><img src="${product.image_url || 'https://via.placeholder.com/50'}" width="50"></td>
+                        <td>${product.name}</td>
+                        <td>${product.price} ر.س</td>
+                        <td>${product.is_available ? 'متاح' : 'غير متاح'}</td>
+                        <td>
+                            <button onclick="editProduct('${product.id}')">تعديل</button>
+                            <button onclick="deleteProduct('${product.id}')">حذف</button>
+                        </td>
+                    </tr>
+                `
+                tbody.innerHTML += row
+            })
+        }
 
-    async function loadProducts() {
-      const { data, error } = await supabase.from('products').select('*').order('id', { ascending: false });
-      if (error) {
-        productsList.innerText = "❌ خطأ في تحميل المنتجات";
-        return;
-      }
-      productsList.innerHTML = "";
-      data.forEach(product => {
-        const div = document.createElement('div');
-        div.className = 'product';
-        div.innerHTML = `
-          <img src="${product.image}" alt="${product.name_ar}" />
-          <h3>${product.name_ar}</h3>
-          <p>${product.price} درهم</p>
-          <button onclick="deleteProduct(${product.id})">🗑️ حذف</button>
-        `;
-        productsList.appendChild(div);
-      });
-    }
+        // إدارة الطلبات
+        async function loadOrders() {
+            const { data: orders, error } = await supabase
+                .from('orders')
+                .select('*')
+                .order('created_at', { ascending: false })
+            
+            if (error) {
+                console.error('Error loading orders:', error)
+                return
+            }
+            
+            const tbody = document.querySelector('#ordersTable tbody')
+            tbody.innerHTML = ''
+            
+            orders.forEach(order => {
+                const row = `
+                    <tr>
+                        <td>${order.id}</td>
+                        <td>${order.customer_name}</td>
+                        <td>${order.total_price} ر.س</td>
+                        <td>
+                            <select onchange="updateOrderStatus('${order.id}', this.value)">
+                                <option value="جديد" ${order.status === 'جديد' ? 'selected' : ''}>جديد</option>
+                                <option value="قيد التجهيز" ${order.status === 'قيد التجهيز' ? 'selected' : ''}>قيد التجهيز</option>
+                                <option value="تم التوصيل" ${order.status === 'تم التوصيل' ? 'selected' : ''}>تم التوصيل</option>
+                            </select>
+                        </td>
+                        <td>${new Date(order.created_at).toLocaleString()}</td>
+                        <td>
+                            <button onclick="viewOrderDetails('${order.id}')">التفاصيل</button>
+                        </td>
+                    </tr>
+                `
+                tbody.innerHTML += row
+            })
+        }
 
-    window.deleteProduct = async function(id) {
-      if (confirm("هل تريد حذف المنتج؟")) {
-        const { error } = await supabase.from('products').delete().eq('id', id);
-        if (error) alert("❌ حدث خطأ");
-        else loadProducts();
-      }
-    }
+        // إدارة الإعدادات
+        async function loadSettings() {
+            const { data: settings, error } = await supabase
+                .from('store_settings')
+                .select('*')
+                .single()
+            
+            if (error && error.code !== 'PGRST116') {
+                console.error('Error loading settings:', error)
+                return
+            }
+            
+            if (settings) {
+                document.getElementById('storeName').value = settings.store_name || ''
+                document.getElementById('deliveryFee').value = settings.delivery_fee || 0
+                document.getElementById('openingTime').value = settings.opening_time || '10:00'
+                document.getElementById('closingTime').value = settings.closing_time || '22:00'
+            }
+        }
 
-    loadProducts();
-  </script>
+        // وظائف إدارة المنتجات
+        window.showAddProductForm = function() {
+            document.getElementById('formTitle').textContent = 'إضافة منتج جديد'
+            document.getElementById('productId').value = ''
+            document.getElementById('productForm').style.display = 'block'
+        }
+
+        window.hideProductForm = function() {
+            document.getElementById('productForm').style.display = 'none'
+            document.getElementById('productFormElement').reset()
+        }
+
+        window.editProduct = async function(productId) {
+            const { data: product, error } = await supabase
+                .from('products')
+                .select('*')
+                .eq('id', productId)
+                .single()
+            
+            if (error) {
+                console.error('Error fetching product:', error)
+                return
+            }
+            
+            document.getElementById('formTitle').textContent = 'تعديل المنتج'
+            document.getElementById('productId').value = product.id
+            document.getElementById('productName').value = product.name
+            document.getElementById('productPrice').value = product.price
+            document.getElementById('productImage').value = product.image_url || ''
+            document.getElementById('productStatus').value = product.is_available
+            document.getElementById('productForm').style.display = 'block'
+        }
+
+        document.getElementById('productFormElement').addEventListener('submit', async (e) => {
+            e.preventDefault()
+            
+            const productData = {
+                name: document.getElementById('productName').value,
+                price: parseFloat(document.getElementById('productPrice').value),
+                image_url: document.getElementById('productImage').value || null,
+                is_available: document.getElementById('productStatus').value === 'true'
+            }
+            
+            const productId = document.getElementById('productId').value
+            
+            try {
+                if (productId) {
+                    // تحديث المنتج
+                    const { error } = await supabase
+                        .from('products')
+                        .update(productData)
+                        .eq('id', productId)
+                    
+                    if (error) throw error
+                } else {
+                    // إضافة منتج جديد
+                    const { error } = await supabase
+                        .from('products')
+                        .insert([productData])
+                    
+                    if (error) throw error
+                }
+                
+                hideProductForm()
+                loadProducts()
+            } catch (error) {
+                console.error('Error saving product:', error)
+                alert('حدث خطأ أثناء حفظ المنتج')
+            }
+        })
+
+        window.deleteProduct = async function(productId) {
+            if (!confirm('هل أنت متأكد من حذف هذا المنتج؟')) return
+            
+            try {
+                const { error } = await supabase
+                    .from('products')
+                    .delete()
+                    .eq('id', productId)
+                
+                if (error) throw error
+                
+                loadProducts()
+            } catch (error) {
+                console.error('Error deleting product:', error)
+                alert('حدث خطأ أثناء حذف المنتج')
+            }
+        }
+
+        // وظائف إدارة الطلبات
+        window.updateOrderStatus = async function(orderId, status) {
+            try {
+                const { error } = await supabase
+                    .from('orders')
+                    .update({ status })
+                    .eq('id', orderId)
+                
+                if (error) throw error
+                
+                loadOrders()
+            } catch (error) {
+                console.error('Error updating order status:', error)
+                alert('حدث خطأ أثناء تحديث حالة الطلب')
+            }
+        }
+
+        window.viewOrderDetails = async function(orderId) {
+            alert('عرض تفاصيل الطلب رقم ' + orderId)
+            // يمكنك تطوير هذه الوظيفة لعرض تفاصيل أكثر
+        }
+
+        // حفظ الإعدادات
+        document.getElementById('settingsForm').addEventListener('submit', async (e) => {
+            e.preventDefault()
+            
+            const settingsData = {
+                store_name: document.getElementById('storeName').value,
+                delivery_fee: parseFloat(document.getElementById('deliveryFee').value),
+                opening_time: document.getElementById('openingTime').value,
+                closing_time: document.getElementById('closingTime').value
+            }
+            
+            try {
+                // تحقق إذا كانت الإعدادات موجودة
+                const { data: existingSettings } = await supabase
+                    .from('store_settings')
+                    .select('*')
+                    .single()
+                
+                if (existingSettings) {
+                    // تحديث الإعدادات
+                    const { error } = await supabase
+                        .from('store_settings')
+                        .update(settingsData)
+                        .eq('id', existingSettings.id)
+                    
+                    if (error) throw error
+                } else {
+                    // إنشاء إعدادات جديدة
+                    const { error } = await supabase
+                        .from('store_settings')
+                        .insert([settingsData])
+                    
+                    if (error) throw error
+                }
+                
+                alert('تم حفظ الإعدادات بنجاح')
+            } catch (error) {
+                console.error('Error saving settings:', error)
+                alert('حدث خطأ أثناء حفظ الإعدادات')
+            }
+        })
+
+        // تبديل الأقسام
+        window.openTab = function(tabName) {
+            // إخفاء جميع المحتويات
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active')
+            })
+            
+            // إلغاء تنشيط جميع الألسنة
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active')
+            })
+            
+            // عرض المحتوى المطلوب
+            document.getElementById(tabName).classList.add('active')
+            
+            // تنشيط اللسان المحدد
+            event.currentTarget.classList.add('active')
+        }
+    </script>
 </body>
 </html>
